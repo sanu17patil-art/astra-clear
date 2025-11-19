@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astra Clear - Space Debris Management System</title>
+    <style>
+        :root {
+            --color-bg-primary: #0a0e27;
+            --color-bg-secondary: #1a1f3a;
+            --color-surface: #242b4a;
+            --color-accent: #00d4ff;
+            --color-accent-hover: #00b8e6;
+            --color-success: #00ff88;
+            --color-warning: #ffaa00;
+            --color-danger: #ff4444;
+            --color-text: #ffffff;
+            --color-text-secondary: #a0a8c0;
+            --color-border: rgba(0, 212, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--color-bg-primary) 0%, #0f1633 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(26, 31, 58, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--color-border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--color-accent);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--color-accent), #0088ff);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 2px solid var(--color-border);
+            color: var(--color-text);
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--color-accent);
+            border-color: var(--color-accent);
+            color: var(--color-bg-primary);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero {
+            text-align: center;
+            padding: 3rem 0;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 136, 255, 0.1));
+            border-radius: 16px;
+            margin-bottom: 3rem;
+            border: 1px solid var(--color-border);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--color-accent), #0088ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--color-text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--color-surface);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--color-accent);
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .card {
+            background: var(--color-surface);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--color-border);
+        }
+
+        .card h2 {
+            color: var(--color-accent);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            color: var(--color-text);
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .btn {
+            background: var(--color-accent);
+            color: var(--color-bg-primary);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: var(--color-accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--color-surface);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-bg-secondary);
+        }
+
+        .result-box {
+            background: var(--color-bg-secondary);
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .classification-result {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .status-debris {
+            background: rgba(255, 68, 68, 0.2);
+            color: var(--color-danger);
+            border: 2px solid var(--color-danger);
+        }
+
+        .status-active {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--color-success);
+            border: 2px solid var(--color-success);
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 30px;
+            background: var(--color-bg-secondary);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-accent), #0088ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: width 1s ease;
+        }
+
+        .orbit-canvas {
+            width: 100%;
+            height: 500px;
+            background: radial-gradient(circle at center, #1a1f3a 0%, #0a0e27 100%);
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mission-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .mission-step {
+            background: var(--color-bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid var(--color-border);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .mission-step:hover {
+            border-color: var(--color-accent);
+            transform: scale(1.05);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: var(--color-accent);
+            color: var(--color-bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 auto 1rem;
+        }
+
+        .chart-container {
+            background: var(--color-bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            border: 1px solid var(--color-border);
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: var(--color-text-secondary);
+        }
+
+        .metric-value {
+            color: var(--color-accent);
+            font-weight: bold;
+        }
+
+        .progress-tracker {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .progress-step {
+            flex: 1;
+            height: 4px;
+            background: var(--color-bg-secondary);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .progress-step.completed {
+            background: var(--color-accent);
+        }
+
+        .progress-step::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            background: var(--color-bg-secondary);
+            border: 3px solid var(--color-border);
+            border-radius: 50%;
+            position: absolute;
+            top: -6px;
+            right: -8px;
+        }
+
+        .progress-step.completed::after {
+            background: var(--color-accent);
+            border-color: var(--color-accent);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-wrap: wrap;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <div class="logo-icon">🛰️</div>
+            <span>Astra Clear</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn active" onclick="showPage('home')">Home</button>
+            <button class="nav-btn" onclick="showPage('classifier')">AI Classifier</button>
+            <button class="nav-btn" onclick="showPage('simulator')">Mission Simulator</button>
+            <button class="nav-btn" onclick="showPage('economics')">Economics</button>
+            <button class="nav-btn" onclick="showPage('analytics')">Analytics</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- HOME PAGE -->
+        <div id="home" class="page active">
+            <div class="hero">
+                <h1>Astra Clear</h1>
+                <p>AI-Powered Space Debris Management System - Autonomous Detection, Classification &amp; Removal</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Catalogued Debris (LEO)</div>
+                    <div class="stat-value">39,000+</div>
+                    <div class="stat-label">Objects &gt;10 cm</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">AI Classification Accuracy</div>
+                    <div class="stat-value">96.5%</div>
+                    <div class="stat-label">Debris vs Active Satellite</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Estimated Debris Removal</div>
+                    <div class="stat-value">500+</div>
+                    <div class="stat-label">Objects per Year</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Metal Recovery Value</div>
+                    <div class="stat-value">$75M</div>
+                    <div class="stat-label">Annual Revenue Potential</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>System Overview</h2>
+                <p style="color: var(--color-text-secondary); line-height: 1.8; margin-bottom: 1.5rem;">
+                    Astra Clear is an innovative space debris management solution that combines AI-powered classification, 
+                    autonomous capture mechanisms, and sustainable metal recovery. Our system addresses the critical problem 
+                    of space debris in Low Earth Orbit (LEO), which poses significant risks to active satellites and space missions.
+                </p>
+                <div class="mission-steps">
+                    <div class="mission-step">
+                        <div class="step-number">1</div>
+                        <h3>Detection</h3>
+                        <p style="color: var(--color-text-secondary); font-size: 0.9rem;">AI identifies debris vs satellites</p>
+                    </div>
+                    <div class="mission-step">
+                        <div class="step-number">2</div>
+                        <h3>Classification</h3>
+                        <p style="color: var(--color-text-secondary); font-size: 0.9rem;">Analyze size, orbit, material</p>
+                    </div>
+                    <div class="mission-step">
+                        <div class="step-number">3</div>
+                        <h3>Capture</h3>
+                        <p style="color: var(--color-text-secondary); font-size: 0.9rem;">Net-based capture system</p>
+                    </div>
+                    <div class="mission-step">
+                        <div class="step-number">4</div>
+                        <h3>Recovery</h3>
+                        <p style="color: var(--color-text-secondary); font-size: 0.9rem;">Metal recycling &amp; revenue</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Key Features</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+                    <div style="background: var(--color-bg-secondary); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--color-accent);">
+                        <h3 style="color: var(--color-accent); margin-bottom: 0.5rem;">🤖 AI Classification</h3>
+                        <p style="color: var(--color-text-secondary); font-size: 0.95rem;">
+                            Machine learning model trained on radio emissions, thermal signatures, and light curves to distinguish debris from active satellites with 96.5% accuracy.
+                        </p>
+                    </div>
+                    <div style="background: var(--color-bg-secondary); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--color-success);">
+                        <h3 style="color: var(--color-success); margin-bottom: 0.5rem;">🎯 Autonomous Targeting</h3>
+                        <p style="color: var(--color-text-secondary); font-size: 0.95rem;">
+                            Prioritizes high-risk debris in critical orbital corridors. Collision avoidance and safe approach trajectories calculated in real-time.
+                        </p>
+                    </div>
+                    <div style="background: var(--color-bg-secondary); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--color-warning);">
+                        <h3 style="color: var(--color-warning); margin-bottom: 0.5rem;">♻️ Metal Recovery</h3>
+                        <p style="color: var(--color-text-secondary); font-size: 0.95rem;">
+                            Captured debris contains aluminum, titanium, and other valuable metals. Estimated recovery value of $150,000 per ton.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI CLASSIFIER PAGE -->
+        <div id="classifier" class="page">
+            <div class="card">
+                <h2>🤖 AI Debris Classification System</h2>
+                <p style="color: var(--color-text-secondary); margin-bottom: 2rem;">
+                    Enter object parameters below to classify whether it's space debris or an active satellite. 
+                    Our AI model analyzes multiple features including radio emissions, thermal signature, and orbital characteristics.
+                </p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                    <div class="form-group">
+                        <label>Radio Emission Level (0-10)</label>
+                        <input type="number" id="radioEmission" class="form-control" min="0" max="10" step="0.1" value="2.3" placeholder="0 = None, 10 = High">
+                    </div>
+                    <div class="form-group">
+                        <label>Thermal Signature (°C)</label>
+                        <input type="number" id="thermalSig" class="form-control" value="-45" placeholder="-100 to 100">
+                    </div>
+                    <div class="form-group">
+                        <label>Light Curve Variation (%)</label>
+                        <input type="number" id="lightCurve" class="form-control" min="0" max="100" value="78" placeholder="0-100%">
+                    </div>
+                    <div class="form-group">
+                        <label>Spin Rate (deg/sec)</label>
+                        <input type="number" id="spinRate" class="form-control" value="15.7" placeholder="0-360">
+                    </div>
+                    <div class="form-group">
+                        <label>Size (meters)</label>
+                        <input type="number" id="objectSize" class="form-control" min="0" step="0.1" value="2.5" placeholder="0.1 - 50">
+                    </div>
+                    <div class="form-group">
+                        <label>Orbital Altitude (km)</label>
+                        <input type="number" id="altitude" class="form-control" value="420" placeholder="200-2000 km">
+                    </div>
+                </div>
+
+                <button class="btn" onclick="classifyDebris()">🔍 Classify Object</button>
+                <button class="btn btn-secondary" onclick="generateRandomData()" style="margin-left: 1rem;">🎲 Random Sample</button>
+
+                <div id="classificationResult" class="result-box">
+                    <h3 style="color: var(--color-accent); margin-bottom: 1rem;">Classification Result</h3>
+                    <div class="classification-result">
+                        <span style="color: var(--color-text-secondary);">Status:</span>
+                        <span id="statusBadge" class="status-badge"></span>
+                    </div>
+                    <div>
+                        <span style="color: var(--color-text-secondary);">Confidence Level:</span>
+                        <div class="confidence-bar">
+                            <div id="confidenceFill" class="confidence-fill" style="width: 0%;">0%</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
+                        <h4 style="color: var(--color-accent); margin-bottom: 1rem;">Analysis Details</h4>
+                        <div id="analysisDetails"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📊 Model Performance</h2>
+                <div class="chart-container">
+                    <div class="metric-row">
+                        <span class="metric-label">Overall Accuracy</span>
+                        <span class="metric-value">96.5%</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Debris Detection Rate</span>
+                        <span class="metric-value">97.2%</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Active Satellite Recognition</span>
+                        <span class="metric-value">95.8%</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">False Positive Rate</span>
+                        <span class="metric-value">2.1%</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Training Dataset Size</span>
+                        <span class="metric-value">23,000 objects</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MISSION SIMULATOR PAGE -->
+        <div id="simulator" class="page">
+            <div class="card">
+                <h2>🚀 Mission Simulation</h2>
+                <p style="color: var(--color-text-secondary); margin-bottom: 2rem;">
+                    Simulate a complete debris removal mission from detection to deorbit. Track progress through each phase.
+                </p>
+
+                <div class="form-group">
+                    <label>Select Target Debris</label>
+                    <select id="targetDebris" class="form-control">
+                        <option value="defunct-satellite">Defunct Satellite (3.2m, 450kg)</option>
+                        <option value="rocket-stage">Rocket Upper Stage (5.8m, 1200kg)</option>
+                        <option value="collision-fragment">Collision Fragment (0.8m, 45kg)</option>
+                        <option value="solar-panel">Detached Solar Panel (4.1m, 180kg)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Mission Parameters</label>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div>
+                            <label style="font-size: 0.9rem;">Approach Speed (m/s)</label>
+                            <input type="number" id="approachSpeed" class="form-control" value="0.5" step="0.1" min="0.1" max="5">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.9rem;">Net Deployment Distance (m)</label>
+                            <input type="number" id="deployDist" class="form-control" value="15" step="1" min="5" max="50">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.9rem;">Deorbit Altitude (km)</label>
+                            <input type="number" id="deorbitAlt" class="form-control" value="120" step="10" min="80" max="200">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="startMission()">▶️ Start Mission</button>
+                <button class="btn btn-secondary" onclick="resetMission()" style="margin-left: 1rem;">🔄 Reset</button>
+
+                <div id="missionProgress" class="result-box">
+                    <h3 style="color: var(--color-accent); margin-bottom: 1.5rem;">Mission Progress</h3>
+                    
+                    <div class="progress-tracker">
+                        <div class="progress-step" id="step1"></div>
+                        <div class="progress-step" id="step2"></div>
+                        <div class="progress-step" id="step3"></div>
+                        <div class="progress-step" id="step4"></div>
+                        <div class="progress-step" id="step5"></div>
+                    </div>
+
+                    <div id="missionStatus" style="margin-top: 2rem;">
+                        <div style="background: var(--color-bg-secondary); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <strong style="color: var(--color-accent);">Current Phase:</strong>
+                            <span id="currentPhase" style="margin-left: 1rem;">Ready to start</span>
+                        </div>
+                        <div id="phaseDetails" style="color: var(--color-text-secondary); line-height: 1.8;"></div>
+                    </div>
+
+                    <div id="missionMetrics" style="margin-top: 2rem; display: none;">
+                        <h4 style="color: var(--color-accent); margin-bottom: 1rem;">Mission Metrics</h4>
+                        <div class="chart-container">
+                            <div class="metric-row">
+                                <span class="metric-label">Total Duration</span>
+                                <span class="metric-value" id="missionDuration">--</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Fuel Consumed</span>
+                                <span class="metric-value" id="fuelUsed">--</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Distance Traveled</span>
+                                <span class="metric-value" id="distanceTraveled">--</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Mission Status</span>
+                                <span class="metric-value" id="finalStatus">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎯 3D Orbital Visualization</h2>
+                <div class="orbit-canvas" id="orbitCanvas">
+                    <canvas id="visualCanvas" width="800" height="500"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ECONOMICS PAGE -->
+        <div id="economics" class="page">
+            <div class="card">
+                <h2>💰 Economics &amp; ROI Calculator</h2>
+                <p style="color: var(--color-text-secondary); margin-bottom: 2rem;">
+                    Calculate the economic viability of debris removal missions including capture costs, metal recovery value, and ROI.
+                </p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                    <div class="form-group">
+                        <label>Number of Objects</label>
+                        <input type="number" id="numObjects" class="form-control" value="100" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Average Mass per Object (kg)</label>
+                        <input type="number" id="avgMass" class="form-control" value="450" min="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Metal Recovery Rate (%)</label>
+                        <input type="number" id="recoveryRate" class="form-control" value="75" min="0" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label>Metal Price per kg ($)</label>
+                        <input type="number" id="metalPrice" class="form-control" value="150" min="1">
+                    </div>
+                </div>
+
+                <button class="btn" onclick="calculateEconomics()">📊 Calculate ROI</button>
+
+                <div id="economicsResult" class="result-box">
+                    <h3 style="color: var(--color-accent); margin-bottom: 1.5rem;">Financial Analysis</h3>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Revenue</div>
+                            <div class="stat-value" id="totalRevenue">$0</div>
+                            <div class="stat-label">From Metal Recovery</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Mission Costs</div>
+                            <div class="stat-value" id="missionCosts">$0</div>
+                            <div class="stat-label">Capture &amp; Operations</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Net Profit</div>
+                            <div class="stat-value" id="netProfit">$0</div>
+                            <div class="stat-label">After All Costs</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">ROI</div>
+                            <div class="stat-value" id="roiPercent">0%</div>
+                            <div class="stat-label">Return on Investment</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container" style="margin-top: 2rem;">
+                        <h4 style="color: var(--color-accent); margin-bottom: 1rem;">Cost Breakdown</h4>
+                        <div class="metric-row">
+                            <span class="metric-label">Launch Cost per Mission</span>
+                            <span class="metric-value" id="launchCost">--</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Capture System Cost</span>
+                            <span class="metric-value" id="captureCost">--</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Operations &amp; Fuel</span>
+                            <span class="metric-value" id="opsCost">--</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Recovery Processing</span>
+                            <span class="metric-value" id="processingCost">--</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Total Metal Recovered</span>
+                            <span class="metric-value" id="totalMetal">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📈 Market Comparison</h2>
+                <div class="chart-container">
+                    <div class="metric-row">
+                        <span class="metric-label">Traditional ADR Cost per Object</span>
+                        <span class="metric-value">$500,000 - $2M</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Astra Clear Cost per Object</span>
+                        <span class="metric-value" style="color: var(--color-success);">$120,000</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Cost Savings</span>
+                        <span class="metric-value" style="color: var(--color-success);">76% Average</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Additional Revenue (Metal)</span>
+                        <span class="metric-value" style="color: var(--color-success);">+$67,500 per object</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Break-even Point</span>
+                        <span class="metric-value">85 objects</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ANALYTICS PAGE -->
+        <div id="analytics" class="page">
+            <div class="card">
+                <h2>📊 Analytics Dashboard</h2>
+                <p style="color: var(--color-text-secondary); margin-bottom: 2rem;">
+                    Comprehensive analytics on debris growth trends, capture success rates, and system performance metrics.
+                </p>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Debris Tracked</div>
+                        <div class="stat-value">39,247</div>
+                        <div class="stat-label" style="color: var(--color-danger);">↑ 8.3% YoY</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">High-Risk Debris</div>
+                        <div class="stat-value">2,841</div>
+                        <div class="stat-label" style="color: var(--color-warning);">Critical Corridor</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Capture Success Rate</div>
+                        <div class="stat-value">94.7%</div>
+                        <div class="stat-label" style="color: var(--color-success);">Last 6 Months</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Debris Removed (2024)</div>
+                        <div class="stat-value">187</div>
+                        <div class="stat-label" style="color: var(--color-success);">Target: 500/year</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📈 Debris Growth Trends (2020-2025)</h2>
+                <div class="chart-container">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <span style="color: var(--color-text-secondary);">Year</span>
+                        <span style="color: var(--color-text-secondary);">Catalogued Objects</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">2020</span>
+                        <span class="metric-value">28,210</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">2021</span>
+                        <span class="metric-value">31,450</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">2022</span>
+                        <span class="metric-value">34,890</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">2023</span>
+                        <span class="metric-value">36,200</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">2024</span>
+                        <span class="metric-value">39,247</span>
+                    </div>
+                    <div class="metric-row" style="border-top: 2px solid var(--color-accent); padding-top: 1rem;">
+                        <span class="metric-label"><strong>Projected 2025 (with Astra Clear)</strong></span>
+                        <span class="metric-value" style="color: var(--color-success);">38,750</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎯 Mission Performance Metrics</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <div class="chart-container">
+                        <h4 style="color: var(--color-accent); margin-bottom: 1rem;">Capture Efficiency</h4>
+                        <div class="metric-row">
+                            <span class="metric-label">First Attempt Success</span>
+                            <span class="metric-value">89.3%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Second Attempt Success</span>
+                            <span class="metric-value">5.4%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Mission Aborted</span>
+                            <span class="metric-value">5.3%</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h4 style="color: var(--color-accent); margin-bottom: 1rem;">Debris by Size</h4>
+                        <div class="metric-row">
+                            <span class="metric-label">Small (0.1-1m)</span>
+                            <span class="metric-value">67%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Medium (1-5m)</span>
+                            <span class="metric-value">28%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Large (&gt;5m)</span>
+                            <span class="metric-value">5%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🌍 Environmental Impact</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">CO₂ Equivalent Saved</div>
+                        <div class="stat-value">1,240t</div>
+                        <div class="stat-label">vs New Satellite Production</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Materials Recycled</div>
+                        <div class="stat-value">84,150kg</div>
+                        <div class="stat-label">Aluminum, Titanium, Composites</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Collision Events Prevented</div>
+                        <div class="stat-value">23</div>
+                        <div class="stat-label">Estimated (2024)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Safe Orbital Corridors</div>
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">LEO Zones Cleared</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Page Navigation
+        function showPage(pageId) {
+            // Hide all pages
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+            
+            // Show selected page
+            document.getElementById(pageId).classList.add('active');
+            
+            // Update nav buttons
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Initialize orbit visualization if simulator page
+            if (pageId === 'simulator') {
+                initOrbitVisualization();
+            }
+        }
+
+        // AI Classification Logic
+        function classifyDebris() {
+            const radioEmission = parseFloat(document.getElementById('radioEmission').value);
+            const thermalSig = parseFloat(document.getElementById('thermalSig').value);
+            const lightCurve = parseFloat(document.getElementById('lightCurve').value);
+            const spinRate = parseFloat(document.getElementById('spinRate').value);
+            const size = parseFloat(document.getElementById('objectSize').value);
+            const altitude = parseFloat(document.getElementById('altitude').value);
+
+            // Simple classification algorithm (in real implementation, this would be ML model)
+            let debrisScore = 0;
+            
+            if (radioEmission < 3) debrisScore += 25;
+            if (Math.abs(thermalSig) > 30) debrisScore += 20;
+            if (lightCurve > 50) debrisScore += 20;
+            if (spinRate > 10) debrisScore += 20;
+            if (altitude < 600) debrisScore += 15;
+
+            const isDebris = debrisScore > 50;
+            const confidence = isDebris ? debrisScore : (100 - debrisScore);
+
+            // Display results
+            const resultBox = document.getElementById('classificationResult');
+            const statusBadge = document.getElementById('statusBadge');
+            const confidenceFill = document.getElementById('confidenceFill');
+            const analysisDetails = document.getElementById('analysisDetails');
+
+            resultBox.classList.add('show');
+
+            if (isDebris) {
+                statusBadge.textContent = '⚠️ SPACE DEBRIS';
+                statusBadge.className = 'status-badge status-debris';
+            } else {
+                statusBadge.textContent = '✓ ACTIVE SATELLITE';
+                statusBadge.className = 'status-badge status-active';
+            }
+
+            confidenceFill.style.width = confidence + '%';
+            confidenceFill.textContent = confidence.toFixed(1) + '%';
+
+            // Analysis details
+            let details = '<div style="display: grid; gap: 0.5rem;">';
+            details += `<div><strong>Radio Emissions:</strong> ${radioEmission < 3 ? '❌ Low (Debris indicator)' : '✓ Active'}</div>`;
+            details += `<div><strong>Thermal Signature:</strong> ${Math.abs(thermalSig) > 30 ? '❌ Extreme (Debris indicator)' : '✓ Normal'}</div>`;
+            details += `<div><strong>Light Curve Variation:</strong> ${lightCurve > 50 ? '❌ High (Tumbling)' : '✓ Stable'}</div>`;
+            details += `<div><strong>Spin Rate:</strong> ${spinRate > 10 ? '❌ Uncontrolled' : '✓ Controlled'}</div>`;
+            details += `<div><strong>Size:</strong> ${size.toFixed(1)}m</div>`;
+            details += `<div><strong>Altitude:</strong> ${altitude}km ${altitude < 600 ? '(High-risk zone)' : ''}</div>`;
+            details += '</div>';
+
+            analysisDetails.innerHTML = details;
+        }
+
+        function generateRandomData() {
+            document.getElementById('radioEmission').value = (Math.random() * 10).toFixed(1);
+            document.getElementById('thermalSig').value = (Math.random() * 150 - 75).toFixed(0);
+            document.getElementById('lightCurve').value = (Math.random() * 100).toFixed(0);
+            document.getElementById('spinRate').value = (Math.random() * 40).toFixed(1);
+            document.getElementById('objectSize').value = (Math.random() * 8 + 0.5).toFixed(1);
+            document.getElementById('altitude').value = (Math.random() * 1500 + 300).toFixed(0);
+        }
+
+        // Mission Simulator Logic
+        let missionInterval;
+        let currentStep = 0;
+
+        function startMission() {
+            resetMission();
+            document.getElementById('missionProgress').classList.add('show');
+            document.getElementById('missionMetrics').style.display = 'none';
+            
+            const phases = [
+                { name: 'Target Acquisition', detail: 'Analyzing debris trajectory and calculating approach vector...', duration: 2000 },
+                { name: 'Approach Maneuver', detail: 'Executing orbital rendezvous. Distance: 2.5 km and closing...', duration: 3000 },
+                { name: 'Net Deployment', detail: 'Deploying capture net. Net expansion complete. Stabilizing...', duration: 2500 },
+                { name: 'Capture Confirmed', detail: 'Debris secured! Initiating deorbit burn sequence...', duration: 2000 },
+                { name: 'Deorbit Complete', detail: 'Mission successful! Debris entering atmosphere for controlled reentry.', duration: 2000 }
+            ];
+
+            currentStep = 0;
+            executeMissionPhase(phases);
+        }
+
+        function executeMissionPhase(phases) {
+            if (currentStep < phases.length) {
+                const phase = phases[currentStep];
+                document.getElementById('currentPhase').textContent = phase.name;
+                document.getElementById('phaseDetails').textContent = phase.detail;
+                document.getElementById('step' + (currentStep + 1)).classList.add('completed');
+
+                currentStep++;
+                missionInterval = setTimeout(() => executeMissionPhase(phases), phase.duration);
+            } else {
+                // Mission complete
+                showMissionMetrics();
+            }
+        }
+
+        function showMissionMetrics() {
+            const target = document.getElementById('targetDebris').value;
+            const masses = {
+                'defunct-satellite': 450,
+                'rocket-stage': 1200,
+                'collision-fragment': 45,
+                'solar-panel': 180
+            };
+
+            const mass = masses[target];
+            const duration = (12 + Math.random() * 4).toFixed(1);
+            const fuel = (mass * 0.3 + Math.random() * 50).toFixed(0);
+            const distance = (380 + Math.random() * 120).toFixed(0);
+
+            document.getElementById('missionDuration').textContent = duration + ' hours';
+            document.getElementById('fuelUsed').textContent = fuel + ' kg';
+            document.getElementById('distanceTraveled').textContent = distance + ' km';
+            document.getElementById('finalStatus').textContent = '✓ SUCCESS';
+            document.getElementById('finalStatus').style.color = 'var(--color-success)';
+            document.getElementById('missionMetrics').style.display = 'block';
+        }
+
+        function resetMission() {
+            clearTimeout(missionInterval);
+            currentStep = 0;
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById('step' + i).classList.remove('completed');
+            }
+            document.getElementById('currentPhase').textContent = 'Ready to start';
+            document.getElementById('phaseDetails').textContent = '';
+            document.getElementById('missionProgress').classList.remove('show');
+        }
+
+        // Economics Calculator
+        function calculateEconomics() {
+            const numObjects = parseInt(document.getElementById('numObjects').value);
+            const avgMass = parseFloat(document.getElementById('avgMass').value);
+            const recoveryRate = parseFloat(document.getElementById('recoveryRate').value) / 100;
+            const metalPrice = parseFloat(document.getElementById('metalPrice').value);
+
+            // Calculations
+            const totalMass = numObjects * avgMass;
+            const recoveredMetal = totalMass * recoveryRate;
+            const revenue = recoveredMetal * metalPrice;
+
+            const costPerObject = 120000; // Astra Clear cost
+            const launchCostPerMission = 2500000; // ~25 objects per launch
+            const missions = Math.ceil(numObjects / 25);
+            const totalLaunchCost = missions * launchCostPerMission;
+            const captureCosts = numObjects * costPerObject * 0.4;
+            const opsCosts = numObjects * costPerObject * 0.35;
+            const processingCosts = recoveredMetal * 20; // $20/kg processing
+
+            const totalCosts = totalLaunchCost + captureCosts + opsCosts + processingCosts;
+            const netProfit = revenue - totalCosts;
+            const roi = ((netProfit / totalCosts) * 100).toFixed(1);
+
+            // Display results
+            document.getElementById('economicsResult').classList.add('show');
+            document.getElementById('totalRevenue').textContent = '$' + (revenue / 1000000).toFixed(2) + 'M';
+            document.getElementById('missionCosts').textContent = '$' + (totalCosts / 1000000).toFixed(2) + 'M';
+            document.getElementById('netProfit').textContent = '$' + (netProfit / 1000000).toFixed(2) + 'M';
+            document.getElementById('netProfit').style.color = netProfit > 0 ? 'var(--color-success)' : 'var(--color-danger)';
+            document.getElementById('roiPercent').textContent = roi + '%';
+            document.getElementById('roiPercent').style.color = roi > 0 ? 'var(--color-success)' : 'var(--color-danger)';
+
+            // Cost breakdown
+            document.getElementById('launchCost').textContent = '$' + (totalLaunchCost / 1000000).toFixed(2) + 'M';
+            document.getElementById('captureCost').textContent = '$' + (captureCosts / 1000000).toFixed(2) + 'M';
+            document.getElementById('opsCost').textContent = '$' + (opsCosts / 1000000).toFixed(2) + 'M';
+            document.getElementById('processingCost').textContent = '$' + (processingCosts / 1000000).toFixed(2) + 'M';
+            document.getElementById('totalMetal').textContent = recoveredMetal.toFixed(0) + ' kg';
+        }
+
+        // Orbit Visualization
+        function initOrbitVisualization() {
+            const canvas = document.getElementById('visualCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            let angle = 0;
+            
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw Earth
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 80, 0, Math.PI * 2);
+                ctx.fillStyle = '#1e90ff';
+                ctx.fill();
+                ctx.strokeStyle = '#00d4ff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Draw LEO orbit
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 200, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(0, 212, 255, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Draw debris corridor
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 220, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255, 68, 68, 0.4)';
+                ctx.lineWidth = 15;
+                ctx.stroke();
+                
+                // Draw satellite (chaser)
+                const satX = centerX + Math.cos(angle) * 200;
+                const satY = centerY + Math.sin(angle) * 200;
+                ctx.beginPath();
+                ctx.arc(satX, satY, 8, 0, Math.PI * 2);
+                ctx.fillStyle = '#00ff88';
+                ctx.fill();
+                
+                // Draw debris
+                const debrisX = centerX + Math.cos(angle + Math.PI) * 220;
+                const debrisY = centerY + Math.sin(angle + Math.PI) * 220;
+                ctx.beginPath();
+                ctx.arc(debrisX, debrisY, 6, 0, Math.PI * 2);
+                ctx.fillStyle = '#ff4444';
+                ctx.fill();
+                
+                angle += 0.01;
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            initOrbitVisualization();
+        };
+    </script>
+</body>
+</html>
+
